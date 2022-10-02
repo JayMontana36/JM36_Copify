@@ -27,13 +27,14 @@ local SetBlipCoords = SetBlipCoords
 local AddBlipForRadius = AddBlipForRadius
 local SetBlipAlpha = SetBlipAlpha
 local SetBlipPriority = SetBlipPriority
+local SetBlipColour = SetBlipColour
 local SetBlipRoute = SetBlipRoute
 --local SetBlipRouteColour = SetBlipRouteColour
-local SetBlipAsFriendly = SetBlipAsFriendly
 
 local AutoCleanBlip = require'SelfCleanUp_Blips'
 
-local GetPlayerWantedCoordsFunction = GetPlayerWantedCentrePosition
+--local GetPlayerWantedCoordsFunction = GetPlayerWantedCentrePosition
+local GetPlayerWantedCoordsFunction = NetworkGetLastPlayerPosReceivedOverNetwork
 local WantedPlayerRadiusBlips <const> = {}
 local WantedBlipColorChangeTime = 0
 local WantedBlipFriendlyBool = false
@@ -84,9 +85,14 @@ local CopPedHsh <const> =
 
 local yield = JM36.yield
 
-Copify.MenuList:toggle("Don't show last known location", {}, 'Gave this a "weird/bad" name because I want people to investigate who is wanted themselves; turning this on means that the player\'s exact location is shown/pinned instead of the player\'s last known (by cops) location.',
+--[[Copify.MenuList:toggle("Don't show last known location", {}, 'Gave this a "weird/bad" name because I want people to investigate who is wanted themselves; turning this on means that the player\'s exact location is shown/pinned instead of the player\'s last known (by cops) location.',
 	function(state)
 		GetPlayerWantedCoordsFunction = (not state) ? GetPlayerWantedCentrePosition : NetworkGetLastPlayerPosReceivedOverNetwork
+	end,
+false)]]
+Copify.MenuList:toggle("Don't pinpoint exact location", {}, "Turning this on means that the player's last known location (by cops) is shown instead of the player's exact location.",
+	function(state)
+		GetPlayerWantedCoordsFunction = state ? GetPlayerWantedCentrePosition : NetworkGetLastPlayerPosReceivedOverNetwork
 	end,
 false)
 
@@ -103,9 +109,11 @@ JM36.CreateThread(function()
 			local WantedBlipFriendlyBoolFlip = Info.Time > WantedBlipColorChangeTime
 			if WantedBlipFriendlyBoolFlip then
 				WantedBlipFriendlyBool = not WantedBlipFriendlyBool
-				WantedBlipColorChangeTime = Info.Time + 1000
+				WantedBlipColorChangeTime = Info.Time + 500
 			end
 			local SelfPedPointer = entities_handle_to_pointer(Player.Ped)
+			local SelfPedCoords = Player.Coords
+			local ClosestWantedBlipId, ClosestWantedBlipDistance = 0, 16384
 			local PointersPeds = World.PointersPeds
 			for Index, PedPointer in PointersPeds do
 				local PedIsNonPlayerCharacter = entities_get_player_info == 0
@@ -136,25 +144,35 @@ JM36.CreateThread(function()
 					local PlayerId = NetworkGetPlayerIndexFromPed(PedHandle)
 					local WantedBlip = WantedPlayerRadiusBlips[PlayerId]
 					if GetPlayerWantedLevel(PlayerId) ~= 0 then
+						local BlipCoords = GetPlayerWantedCoordsFunction(PlayerId)
 						if WantedBlip then
-							SetBlipCoords(WantedBlip, GetPlayerWantedCoordsFunction(PlayerId))
+							SetBlipCoords(WantedBlip, BlipCoords)
 						else
-							WantedBlip = AddBlipForRadius(GetPlayerWantedCoordsFunction(PlayerId), 50.0)
+							WantedBlip = AddBlipForRadius(BlipCoords, 50.0)
 							WantedPlayerRadiusBlips[PlayerId] = WantedBlip
 							SetBlipAlpha(WantedBlip, 96)
 							SetBlipPriority(WantedBlip, 0)
-							SetBlipRoute(WantedBlip, 0)
-							--SetBlipRouteColour
-							SetBlipAsFriendly(WantedBlip, WantedBlipFriendlyBool)
+							SetBlipColour(WantedBlip, WantedBlipFriendlyBool ? 3 : 1)
+						end
+						do
+							local BlipDistance = SelfPedCoords:distance(BlipCoords)
+							if ClosestWantedBlipDistance > BlipDistance then
+								ClosestWantedBlipDistance = BlipDistance
+								ClosestWantedBlipId = WantedBlip
+							end
 						end
 						if WantedBlipFriendlyBoolFlip then
-							SetBlipAsFriendly(WantedBlip, WantedBlipFriendlyBool)
+							SetBlipColour(WantedBlip, WantedBlipFriendlyBool ? 3 : 1)
 						end
 					elseif WantedBlip then
 						util_remove_blip(WantedBlip)
 						WantedPlayerRadiusBlips[PlayerId] = nil
 					end
 				end
+			end
+			if ClosestWantedBlipId ~= 0 then
+				SetBlipRoute(ClosestWantedBlipId, true)
+				--SetBlipRouteColour
 			end
 		elseif WasEnabled then
 			for Index = 0, 31 do

@@ -7,14 +7,16 @@ local WeaponLoadout <const> =
 	"weapon_stungun",
 	"weapon_switchblade",
 	"weapon_combatpistol",
-	"weapon_carbinerifle",
+	--"weapon_carbinerifle",
+	"weapon_militaryrifle",
 	"weapon_sniperrifle",
 	"weapon_pumpshotgun",
 	"weapon_flaregun",
 	"weapon_flare",
 	"weapon_bzgas",
+	"weapon_hominglauncher",
 }
-local WeaponLoadoutCount <const> = 13 -- #WeaponLoadout
+local WeaponLoadoutCount <const> = 14 -- #WeaponLoadout
 JM36.CreateThread_HighPriority(function()
 	local GetHashKey = GetHashKey
 	for Index, Weapon in WeaponLoadout do
