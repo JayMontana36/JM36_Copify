@@ -146,15 +146,21 @@ do
 	_G.print = print
 end
 do
+	local OsThreadRunning = false
 	local _require = require
 	require = function(file)
 		local ReturnValue
-	--	util.execute_in_os_thread(function()
+		if not OsThreadRunning then
+			OsThreadRunning = true
+			util.execute_in_os_thread(function()
+				ReturnValue = _require(file)
+				OsThreadRunning = false
+			end)
+		else
 			ReturnValue = _require(file)
-	--	end)
+		end
 		return ReturnValue
 	end
-	_G.require = require
 end
 
 

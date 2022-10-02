@@ -1,12 +1,16 @@
+local Player = Info.Player
+local Vehicle = Player.Vehicle
+
+local IsControlJustPressed = IsControlJustPressed
+local IsPedRunning = IsPedRunning
+local SetPedUsingActionMode = SetPedUsingActionMode
+local SetPedStealthMovement = SetPedStealthMovement
+
+local yield = JM36.yield
+
+local StealthMode
+
 JM36.CreateThread(function()
-	local IsControlJustPressed <const> = IsControlJustPressed
-	local IsPedRunning <const> = IsPedRunning
-	local SetPedUsingActionMode <const> = SetPedUsingActionMode
-	local SetPedStealthMovement <const> = SetPedStealthMovement
-	local Player <const> = Info.Player
-	local Vehicle <const> = Player.Vehicle
-	local yield <const> = JM36.yield
-	local StealthMode
 	while true do
 		if not Vehicle.IsIn then
 			if IsControlJustPressed(0,28) then
