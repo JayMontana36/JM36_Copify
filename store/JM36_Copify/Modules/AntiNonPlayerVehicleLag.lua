@@ -35,7 +35,7 @@ JM36.CreateThread(function()
 				if EntityOwner ~= -1 and EntityOwner ~= SelfPlayerId and SelfPlayerCoords:distance(entities_get_position(VehiclePointer)) < 125.0--[[250.0]] then
 					local VehicleHandle = entities_pointer_to_handle(VehiclePointer)
 					local VehicleOperator = GetPedInVehicleSeat(VehicleHandle, -1, false)
-					if GetEntityAttachedTo(VehicleHandle) == 0 and (VehicleOperator == 0 or not IsPedAPlayer(VehicleOperator)) then
+					if GetEntityAttachedTo(VehicleHandle) == 0 and (VehicleOperator ~= 0 and not IsPedAPlayer(VehicleOperator)) then
 						NetworkRequestControlOfEntity(VehicleHandle)
 					end
 				end
