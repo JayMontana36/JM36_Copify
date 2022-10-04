@@ -27,16 +27,19 @@ local SelfPlayerCoords = v3.new()
 JM36.CreateThread(function()
 	while true do
 		if Copify.Enabled then
-			local SelfPlayerId = Player.Id
-			SelfPlayerCoords:set(Player.Coords);SelfPlayerCoords:add(Vehicle.IsIn ? GetEntityVelocity(Vehicle.Id) : GetEntityVelocity(Player.Ped))
-			local PointersVehicles = World.PointersVehicles
-			for Index, VehiclePointer in PointersVehicles do
-				local EntityOwner = NetworkGetEntityOwnerFromPointer(VehiclePointer)
-				if EntityOwner ~= -1 and EntityOwner ~= SelfPlayerId and SelfPlayerCoords:distance(entities_get_position(VehiclePointer)) < 125.0--[[250.0]] then
-					local VehicleHandle = entities_pointer_to_handle(VehiclePointer)
-					local VehicleOperator = GetPedInVehicleSeat(VehicleHandle, -1, false)
-					if GetEntityAttachedTo(VehicleHandle) == 0 and (VehicleOperator ~= 0 and not IsPedAPlayer(VehicleOperator)) then
-						NetworkRequestControlOfEntity(VehicleHandle)
+			local Vehicle_IsIn = Vehicle.IsIn
+			if Vehicle_IsIn and Vehicle.IsOp then
+				local SelfPlayerId = Player.Id
+				SelfPlayerCoords:set(Player.Coords);SelfPlayerCoords:add(Vehicle_IsIn ? GetEntityVelocity(Vehicle.Id) : GetEntityVelocity(Player.Ped))
+				local PointersVehicles = World.PointersVehicles
+				for Index, VehiclePointer in PointersVehicles do
+					local EntityOwner = NetworkGetEntityOwnerFromPointer(VehiclePointer)
+					if EntityOwner ~= -1 and EntityOwner ~= SelfPlayerId and SelfPlayerCoords:distance(entities_get_position(VehiclePointer)) < 125.0--[[250.0]] then
+						local VehicleHandle = entities_pointer_to_handle(VehiclePointer)
+						local VehicleOperator = GetPedInVehicleSeat(VehicleHandle, -1, false)
+						if GetEntityAttachedTo(VehicleHandle) == 0 and (VehicleOperator ~= 0 and not IsPedAPlayer(VehicleOperator)) then
+							NetworkRequestControlOfEntity(VehicleHandle)
+						end
 					end
 				end
 			end
