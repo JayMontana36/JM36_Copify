@@ -112,6 +112,7 @@ do
 			for k,v in pairs(config) do
 				configFile:write(("%s%s%s\n"):format(k, sep, tostring(v)))
 			end
+			configFile:close()
 		end
 	end
 end
@@ -210,10 +211,14 @@ local JM36 =
 }
 do
 	local Halt = function(ms)
-		local TimeResume = Info.Time+(ms or 0)
-		repeat
+		if not ms then
 			coroutine_yield()
-		until Info.Time > TimeResume
+		else
+			ms = Info.Time+ms
+			repeat
+				coroutine_yield()
+			until Info.Time > ms
+		end
 	end
 	JM36.Wait, JM36.wait, JM36.yield = Halt, Halt, Halt
 	JM36.CreateThread_HighPriority(function() wait=JM36.wait;IsKeyPressed=get_key_pressed end)
@@ -426,14 +431,14 @@ end
 
 
 -- Add player triggers
-players.on_join(function(PlayerId)
+--[[players.on_join]]players.add_command_hook(function(PlayerId,PlayerRoot)
 	for i=1, #Scripts_Join do
-		Scripts_Join[i](PlayerId)
+		Scripts_Join[i](PlayerId,PlayerRoot)
 	end
 end)
-players.on_leave(function(PlayerId, PlayerName)
+players.on_leave(function(PlayerId,PlayerName)
 	for i=1, #Scripts_Left do
-		Scripts_Left[i](PlayerId, PlayerName)
+		Scripts_Left[i](PlayerId,PlayerName)
 	end
 end)
 
@@ -466,7 +471,7 @@ local tick = coroutine_wrap(function()
 				local j = 1
 				for i = 1, #Threads_HighPriority do
 					local Thread = Threads_HighPriority[i]
-					if coroutine_status(Thread)~="dead" then
+					if Thread and coroutine_status(Thread)~="dead" then
 						do
 							local Successful, Error = coroutine_resume(Thread)
 							if not Successful then print(Error) end
@@ -490,7 +495,7 @@ local tick = coroutine_wrap(function()
 			local j = 1
 			for i = 1, ThreadsNum do
 				local Thread = Threads[i]
-				if coroutine_status(Thread)~="dead" then
+				if Thread and coroutine_status(Thread)~="dead" then
 					do
 						local Successful, Error = coroutine_resume(Thread)
 						if not Successful then print(Error) end
@@ -509,4 +514,4 @@ local tick = coroutine_wrap(function()
 	end
 end)util.create_tick_handler(tick)
 
-util.on_stop(Scripts_Stop)
+util.on_stop(function()Scripts_Stop()end)

@@ -5,7 +5,7 @@ do
 	local bulletProof, fireProof, explosionProof, collisionProof, meleeProof, steamProof, p7, drownProof = memory.alloc_int(), memory.alloc_int(), memory.alloc_int(), memory.alloc_int(), memory.alloc_int(), memory.alloc_int(), memory.alloc_int(), memory.alloc_int()
 	GetEntityCanBeDamaged = function(Entity)
 		GetEntityProofs(Entity, bulletProof, fireProof, explosionProof, collisionProof, meleeProof, steamProof, p7, drownProof)
-		pluto_switch GetEntityType(Entity) do
+		switch GetEntityType(Entity) do
 			case 1:
 				if IsPedAPlayer(Entity) then
 					return
@@ -28,7 +28,7 @@ do
 						)
 					)
 				end
-            pluto_default:
+            default:
                 return
 				(
 					GetEntityCanBeDamaged_Original(Entity)

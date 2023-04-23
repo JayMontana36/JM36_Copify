@@ -120,11 +120,11 @@ JM36.CreateThread(function()
 				if CopPedHsh[entities_get_model_hash(PedPointer)] and PedIsNonPlayerCharacter then
 					local PedHandle = entities_pointer_to_handle(PedPointer)
 					local PedBlip
-					pluto_switch GetPedType(PedHandle) do
+					switch GetPedType(PedHandle) do
 						case 6:		-- cop
 						case 27:	-- swat
 						case 29:	-- army
-						pluto_default:
+						default:
 							PedBlip = true
 					end
 					if PedBlip then

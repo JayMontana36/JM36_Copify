@@ -151,6 +151,7 @@ local CombatMovement <const> = 2
 
 local Player = Info.Player
 local RequestEntityModel <const> = require'RequestEntityModel'
+local SetEntityCleanupByEngine <const> = function()end
 
 local SpawnVehicles <const> = function(VehicleHash, VehicleCoords, VehicleNum)
 	local Vehicles, VehiclesNum = {}, 0
@@ -244,6 +245,8 @@ local SpawnVehicles <const> = function(VehicleHash, VehicleCoords, VehicleNum)
 					SetNetworkIdExistsOnAllMachines(VehNet, true)
 				end
 			end)
+			
+			SetEntityProofs(Vehicle, true, true, false, false, false, true, true, true)
 		end
 	end
 	JM36.CreateThread(function()
@@ -388,6 +391,26 @@ local SpawnAssault <const> = function(TargetPlayerId, Option, TotalNumber, Invin
 			SetPedAccuracy(Ped, 100)
 			SetPedCombatRange(Ped, 2)
 			SetPedCombatMovement(Ped, CombatMovement)
+			
+			SetPedCombatAttributes(Ped, 0, false) -- BF_CanUseCover 
+			SetPedCombatAttributes(Ped, 1, true) -- BF_CanUseVehicles 
+			SetPedCombatAttributes(Ped, 2, true) -- BF_CanDoDrivebys 
+			SetPedCombatAttributes(Ped, 3, true) -- BF_CanLeaveVehicle 
+			SetPedCombatAttributes(Ped, 5, true) -- BF_CanFightArmedPedsWhenNotArmed 
+			SetPedCombatAttributes(Ped, 20, false) -- BF_CanTauntInVehicle 
+			SetPedCombatAttributes(Ped, 46, true) -- BF_AlwaysFight 
+			SetPedCombatAttributes(Ped, 52, true) -- BF_IgnoreTrafficWhenDriving 
+			SetPedCombatAttributes(Ped, 63, false) -- BF_FleesFromInvincibleOpponents 
+			--SetPedCombatAttributes(Ped, 292, false) -- BF_FreezeMovement 
+			--SetPedCombatAttributes(Ped, 1424, true) -- BF_PlayerCanUseFiringWeapons 
+			
+			SetPedFiringPattern(Ped, GetHashKey"FIRING_PATTERN_FULL_AUTO")
+			
+			SetEntityProofs(Ped, false, true, false, true, true, true, true, true)
+			
+			SetEntityMaxHealth(Ped, 350)
+			SetEntityHealth(Ped, 350)
+			SetPedArmour(Ped, 100)
 			
 			SetPedCanRagdoll(Ped, false)
 			SetPedCanRagdollFromPlayerImpact(Ped, false)
