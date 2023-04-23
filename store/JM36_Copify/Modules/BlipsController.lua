@@ -124,7 +124,7 @@ JM36.CreateThread(function()
 						case 6:		-- cop
 						case 27:	-- swat
 						case 29:	-- army
-						pluto_default:
+						default:
 							PedBlip = true
 					end
 					if PedBlip then
